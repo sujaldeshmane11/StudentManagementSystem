@@ -14,7 +14,7 @@ This application helps manage students, courses, and student enrollments through
 - View Enrollment Details
 - Form Validation
 - Search and Pagination
-- Database Integration using MySQL
+- MySQL Database Integration
 - Responsive User Interface
 
 ## Technologies Used
@@ -77,25 +77,20 @@ This application helps manage students, courses, and student enrollments through
 
 ```text
 studentmanagement/
-│
 ├── src/
 │   ├── main/
 │   │   ├── java/
 │   │   │   └── com/
 │   │   │       └── cwm/
 │   │   │           └── studentmanagement/
-│   │   │
 │   │   └── resources/
 │   │       ├── static/
 │   │       │   ├── css/
 │   │       │   ├── js/
 │   │       │   └── images/
-│   │       │
 │   │       ├── templates/
 │   │       └── application.properties
-│   │
 │   └── test/
-│
 ├── screenshots/
 ├── .gitignore
 ├── pom.xml
@@ -113,7 +108,7 @@ Before running this project, install:
 
 ## Database Configuration
 
-First, create the database in MySQL:
+Create the database in MySQL:
 
 ```sql
 CREATE DATABASE student_mgmt_db;
