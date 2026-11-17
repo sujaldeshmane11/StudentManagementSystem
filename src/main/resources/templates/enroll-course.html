@@ -1,0 +1,630 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Enroll Student to Courses - SMS</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
+          rel="stylesheet">
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <style>
+        .enrollment-header {
+            background: #4361ee;
+            color: white;
+            border-radius: 10px;
+            padding: 22px;
+        }
+
+        .enrollment-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.07);
+        }
+
+        .course-row {
+            cursor: pointer;
+        }
+
+        .course-row:hover {
+            background: #f8f9ff;
+        }
+
+        .course-checkbox {
+            cursor: pointer;
+        }
+
+        .course-checkbox:disabled {
+            cursor: not-allowed;
+        }
+
+        .summary-box {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .total-fee {
+            color: #4361ee;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .selected-student {
+            background: #f8f9fa;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .empty-message {
+            color: #888;
+            text-align: center;
+            padding: 25px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="d-flex" id="wrapper">
+
+    <!-- Sidebar -->
+    <div class="bg-dark text-white" id="sidebar-wrapper">
+
+        <div class="sidebar-heading border-bottom border-secondary p-3">
+            <i class="bi bi-mortarboard-fill me-2"></i>
+            SMS Admin
+        </div>
+
+        <div class="list-group list-group-flush">
+
+            <!-- Dashboard -->
+            <a th:href="@{/dashboard}" class="sidebar-link">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+
+            <!-- Courses -->
+            <a th:href="@{/courses/list}" class="sidebar-link">
+                <i class="bi bi-book"></i> Courses
+            </a>
+
+            <!-- Students -->
+            <a th:href="@{/students/list}" class="sidebar-link">
+                <i class="bi bi-people"></i> Students
+            </a>
+
+            <!-- Enrolled Students -->
+            <a th:href="@{/enrollment/students}" class="sidebar-link">
+                <i class="bi bi-person-check"></i> Enrolled Students
+            </a>
+
+            <!-- Enroll to Course -->
+            <a th:href="@{/enrollment/new}" class="sidebar-link active">
+                <i class="bi bi-person-plus"></i> Enroll to Course
+            </a>
+
+            <!-- Logout -->
+            <form th:action="@{/logout}" method="post"
+                  class="mt-auto border-top border-secondary">
+
+                <button type="submit"
+                        class="sidebar-link w-100 text-start border-0 bg-transparent text-white">
+
+                    <i class="bi bi-box-arrow-right"></i>
+                    Logout
+
+                </button>
+            </form>
+
+        </div>
+    </div>
+
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
+
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+
+            <div class="container-fluid">
+
+                <button class="btn btn-outline-secondary" id="sidebarToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+
+                <div class="ms-auto">
+                    <span class="navbar-text">
+                        <i class="bi bi-person-circle me-1"></i>
+                        Admin User
+                    </span>
+                </div>
+
+            </div>
+        </nav>
+
+        <div class="container-fluid px-4 py-4">
+
+            <!-- Header -->
+            <div class="enrollment-header mb-4">
+
+                <div class="d-flex flex-column flex-md-row
+                            justify-content-between align-items-md-center gap-3">
+
+                    <h2 class="mb-0">
+                        Enroll Student to Courses
+                    </h2>
+
+                    <a th:href="@{/students/list}"
+                       class="btn btn-light text-primary fw-semibold">
+
+                        <i class="bi bi-arrow-left me-1"></i>
+                        Back to Students
+
+                    </a>
+
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div th:if="${successMessage}"
+                 class="alert alert-success"
+                 th:text="${successMessage}">
+            </div>
+
+            <div th:if="${errorMessage}"
+                 class="alert alert-danger"
+                 th:text="${errorMessage}">
+            </div>
+
+            <!-- Enrollment Form -->
+            <form th:action="@{/enrollment/save}"
+                  method="post"
+                  id="enrollmentForm">
+
+                <div class="row g-4">
+
+                    <!-- Left: Course Selection -->
+                    <div class="col-lg-8">
+
+                        <div class="card enrollment-card h-100">
+
+                            <div class="card-header bg-white
+                                        d-flex justify-content-between
+                                        align-items-center py-3">
+
+                                <strong>
+                                    <i class="bi bi-list-check me-2"></i>
+                                    Course Selection
+                                </strong>
+
+                                <span class="text-muted small">
+                                    Multi-select allowed
+                                </span>
+
+                            </div>
+
+                            <div class="card-body">
+
+                                <div class="table-responsive">
+
+                                    <table class="table table-hover align-middle">
+
+                                        <thead>
+                                            <tr>
+                                                <th style="width:60px;">Select</th>
+                                                <th>Course Name</th>
+                                                <th>Status</th>
+                                                <th class="text-end">Fee</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+
+                                            <tr th:each="course : ${courses}"
+                                                class="course-row">
+
+                                                <td>
+                                                    <input
+                                                        class="form-check-input course-checkbox"
+                                                        type="checkbox"
+                                                        name="courseIds"
+                                                        th:value="${course.id}"
+                                                        th:attr="data-fee=${course.fee},
+                                                                 data-name=${course.courseName}">
+                                                </td>
+
+                                                <td th:text="${course.courseName}">
+                                                    Course Name
+                                                </td>
+
+                                                <td>
+                                                    <span class="badge bg-secondary course-status">
+                                                        Select Student
+                                                    </span>
+                                                </td>
+
+                                                <td class="text-end"
+                                                    th:text="${'₹' + #numbers.formatDecimal(course.fee, 1, 'COMMA', 2, 'POINT')}">
+                                                    ₹0.00
+                                                </td>
+
+                                            </tr>
+
+                                            <tr th:if="${#lists.isEmpty(courses)}">
+                                                <td colspan="4"
+                                                    class="empty-message">
+                                                    No active courses available.
+                                                </td>
+                                            </tr>
+
+                                        </tbody>
+
+                                    </table>
+
+                                </div>
+
+                                <div class="small text-muted mt-2">
+                                    <span class="badge bg-success">Already Enrolled</span>
+                                    Courses already assigned to the student.
+                                    <br>
+                                    <span class="badge bg-primary mt-2">Available</span>
+                                    New courses available for enrollment.
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Right: Student & Summary -->
+                    <div class="col-lg-4">
+
+                        <div class="card enrollment-card h-100">
+
+                            <div class="card-header bg-white py-3">
+
+                                <strong>
+                                    <i class="bi bi-person-check me-2"></i>
+                                    Student & Summary
+                                </strong>
+
+                            </div>
+
+                            <div class="card-body d-flex flex-column gap-3">
+
+                                <!-- Student Selection -->
+                                <div>
+
+                                    <label for="studentSelect"
+                                           class="form-label">
+                                        Select Student
+                                    </label>
+
+                                    <select name="studentId"
+                                            id="studentSelect"
+                                            class="form-select"
+                                            required>
+
+                                        <option value="">
+                                            Select a student
+                                        </option>
+
+                                        <option th:each="student : ${students}"
+                                                th:value="${student.id}"
+                                                th:attr="data-name=${student.firstName + ' ' + student.lastName},
+                                                         data-email=${student.email},
+                                                         data-course-ids=${studentCourseIds[student.id]}"
+                                                th:text="${student.firstName + ' ' + student.lastName + ' (' + student.email + ')'}">
+                                        </option>
+
+                                    </select>
+
+                                    <div class="selected-student mt-3">
+
+                                        <div class="text-muted small">
+                                            Selected Student
+                                        </div>
+
+                                        <div class="fw-semibold"
+                                             id="selectedStudentName">
+                                            Not selected
+                                        </div>
+
+                                        <div class="small text-muted"
+                                             id="selectedStudentEmail">
+                                            Select a student above
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                <!-- Summary -->
+                                <div class="summary-box">
+
+                                    <div class="d-flex justify-content-between mb-2">
+
+                                        <span class="text-muted">
+                                            Courses Selected
+                                        </span>
+
+                                        <strong id="courseCount">0</strong>
+
+                                    </div>
+
+                                    <div class="d-flex justify-content-between">
+
+                                        <span class="text-muted">
+                                            Total Fee
+                                        </span>
+
+                                        <span class="total-fee" id="totalFee">
+                                            ₹0.00
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                                <!-- Selected Courses -->
+                                <div>
+
+                                    <div class="text-muted small mb-2">
+                                        Selected Courses
+                                    </div>
+
+                                    <ul id="selectedCoursesList" class="mb-3">
+
+                                        <li class="text-muted">
+                                            No courses selected
+                                        </li>
+
+                                    </ul>
+
+                                </div>
+
+                                <!-- Buttons -->
+                                <div class="d-flex flex-wrap gap-2 mt-auto">
+
+                                    <a th:href="@{/students/list}"
+                                       class="btn btn-outline-secondary flex-grow-1">
+
+                                        <i class="bi bi-arrow-left me-1"></i>
+                                        Cancel
+
+                                    </a>
+
+                                    <button type="submit"
+                                            class="btn btn-primary flex-grow-1">
+
+                                        <i class="bi bi-check2-circle me-1"></i>
+                                        Enroll
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
+</script>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    // Sidebar Toggle
+    const sidebarToggle = document.getElementById("sidebarToggle");
+
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener("click", function () {
+            document.body.classList.toggle("sb-sidenav-toggled");
+        });
+    }
+
+    const checkboxes = document.querySelectorAll(".course-checkbox");
+    const studentSelect = document.getElementById("studentSelect");
+
+    const courseCount = document.getElementById("courseCount");
+    const totalFee = document.getElementById("totalFee");
+
+    const selectedCoursesList =
+        document.getElementById("selectedCoursesList");
+
+    const selectedStudentName =
+        document.getElementById("selectedStudentName");
+
+    const selectedStudentEmail =
+        document.getElementById("selectedStudentEmail");
+
+    // Format Currency
+    function formatCurrency(amount) {
+
+        return new Intl.NumberFormat("en-IN", {
+            style: "currency",
+            currency: "INR"
+        }).format(amount);
+
+    }
+
+    // Update Course Summary
+    function updateSummary() {
+
+        let total = 0;
+        let count = 0;
+
+        selectedCoursesList.innerHTML = "";
+
+        checkboxes.forEach(function (checkbox) {
+
+            if (checkbox.checked && !checkbox.disabled) {
+
+                const fee = Number(checkbox.dataset.fee);
+                const name = checkbox.dataset.name;
+
+                total += fee;
+                count++;
+
+                const li = document.createElement("li");
+
+                li.textContent = name + " - " + formatCurrency(fee);
+
+                selectedCoursesList.appendChild(li);
+            }
+
+        });
+
+        if (count === 0) {
+
+            const li = document.createElement("li");
+
+            li.className = "text-muted";
+            li.textContent = "No courses selected";
+
+            selectedCoursesList.appendChild(li);
+        }
+
+        courseCount.textContent = count;
+        totalFee.textContent = formatCurrency(total);
+    }
+
+    // Update Courses Based on Selected Student
+    function updateCourseAvailability() {
+
+        const selectedOption =
+            studentSelect.options[studentSelect.selectedIndex];
+
+        let enrolledIds = [];
+
+        if (studentSelect.value !== "") {
+
+            const ids = selectedOption.dataset.courseIds || "";
+
+            enrolledIds = ids
+                .split(",")
+                .filter(id => id !== "");
+        }
+
+        checkboxes.forEach(function (checkbox) {
+
+            const courseId = checkbox.value;
+            const row = checkbox.closest("tr");
+
+            const status = row.querySelector(".course-status");
+
+            if (enrolledIds.includes(courseId)) {
+
+                checkbox.checked = false;
+                checkbox.disabled = true;
+
+                status.textContent = "Already Enrolled";
+                status.className = "badge bg-success course-status";
+
+            } else {
+
+                checkbox.disabled = false;
+                checkbox.checked = false;
+
+                if (studentSelect.value === "") {
+
+                    status.textContent = "Select Student";
+                    status.className = "badge bg-secondary course-status";
+
+                } else {
+
+                    status.textContent = "Available";
+                    status.className = "badge bg-primary course-status";
+                }
+            }
+        });
+
+        updateSummary();
+    }
+
+    // Course Checkbox Events
+    checkboxes.forEach(function (checkbox) {
+
+        checkbox.addEventListener("change", updateSummary);
+
+    });
+
+    // Student Dropdown Event
+    studentSelect.addEventListener("change", function () {
+
+        const selectedOption =
+            studentSelect.options[studentSelect.selectedIndex];
+
+        if (studentSelect.value !== "") {
+
+            selectedStudentName.textContent =
+                selectedOption.dataset.name;
+
+            selectedStudentEmail.textContent =
+                selectedOption.dataset.email;
+
+        } else {
+
+            selectedStudentName.textContent = "Not selected";
+
+            selectedStudentEmail.textContent =
+                "Select a student above";
+        }
+
+        updateCourseAvailability();
+    });
+
+    // Form Validation
+    document.getElementById("enrollmentForm")
+        .addEventListener("submit", function (event) {
+
+            const selectedCourses =
+                document.querySelectorAll(
+                    ".course-checkbox:checked:not(:disabled)"
+                );
+
+            if (studentSelect.value === "") {
+
+                event.preventDefault();
+
+                alert("Please select a student.");
+
+                return;
+            }
+
+            if (selectedCourses.length === 0) {
+
+                event.preventDefault();
+
+                alert("Please select at least one new course.");
+            }
+        });
+
+    // Initial Load
+    updateCourseAvailability();
+
+});
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,181 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head}"></head>
+
+<body>
+
+    <div class="d-flex" id="wrapper">
+
+        <!-- Sidebar -->
+        <div th:replace="~{fragments/layout :: sidebar}"></div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+
+            <div th:replace="~{fragments/layout :: navbar}"></div>
+
+            <div class="container-fluid px-4 py-4">
+
+                <!-- Page Heading -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>Add New Student</h2>
+
+                    <a th:href="@{/students/list}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left me-1"></i> Back to List
+                    </a>
+                </div>
+
+                <!-- Student Form Card -->
+                <div class="card mb-4">
+
+                    <div class="card-header bg-white">
+                        <i class="bi bi-person-plus me-1"></i> Student Details
+                    </div>
+
+                    <div class="card-body">
+
+                        <form th:action="@{/students/save}"
+                              th:object="${studentDTO}"
+                              method="post">
+
+                            <!-- First Name and Last Name -->
+                            <div class="row mb-3">
+
+                                <div class="col-md-6">
+                                    <label class="form-label">First Name</label>
+
+                                    <input type="text"
+                                           th:field="*{firstName}"
+                                           class="form-control"
+                                           placeholder="Enter first name"
+                                           required>
+
+                                    <div class="text-danger"
+                                         th:if="${#fields.hasErrors('firstName')}"
+                                         th:errors="*{firstName}">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Last Name</label>
+
+                                    <input type="text"
+                                           th:field="*{lastName}"
+                                           class="form-control"
+                                           placeholder="Enter last name"
+                                           required>
+
+                                    <div class="text-danger"
+                                         th:if="${#fields.hasErrors('lastName')}"
+                                         th:errors="*{lastName}">
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- Email and Phone -->
+                            <div class="row mb-3">
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Email</label>
+
+                                    <input type="email"
+                                           th:field="*{email}"
+                                           class="form-control"
+                                           placeholder="Enter email"
+                                           required>
+
+                                    <div class="text-danger"
+                                         th:if="${#fields.hasErrors('email')}"
+                                         th:errors="*{email}">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Phone Number</label>
+
+                                    <input type="text"
+                                           th:field="*{phoneNumber}"
+                                           class="form-control"
+                                           placeholder="Enter phone number">
+                                </div>
+
+                            </div>
+
+                            <!-- Multiple Course Selection -->
+                            <div class="row mb-3">
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label">
+                                        Select Courses
+                                    </label>
+
+                                    <select class="form-select"
+                                            th:field="*{courseIds}"
+                                            multiple
+                                            size="5">
+
+                                        <option th:each="course : ${courses}"
+                                                th:value="${course.id}"
+                                                th:text="${course.courseName + ' (' + course.courseCode + ') - ₹' + course.fee}">
+                                        </option>
+
+                                    </select>
+
+                                    <small class="text-muted">
+                                        Hold Ctrl to select multiple courses.
+                                    </small>
+
+                                </div>
+
+                                <!-- Address -->
+                                <div class="col-md-6">
+
+                                    <label class="form-label">Address</label>
+
+                                    <textarea class="form-control"
+                                              th:field="*{address}"
+                                              rows="3"
+                                              placeholder="Enter address"
+                                              required></textarea>
+
+                                    <div class="text-danger"
+                                         th:if="${#fields.hasErrors('address')}"
+                                         th:errors="*{address}">
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <!-- Buttons -->
+                            <div class="d-flex justify-content-end">
+
+                                <button type="reset" class="btn btn-light me-2">
+                                    Reset
+                                </button>
+
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save me-1"></i> Save Student
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

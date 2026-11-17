@@ -1,0 +1,419 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Students Enrolled in Courses - SMS</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <style>
+        body {
+            background: #f5f7fb;
+        }
+
+        .page-header {
+            background: #4361ee;
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+        }
+
+        .student-count {
+            background: white;
+            color: #4361ee;
+            padding: 7px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .main-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.06);
+        }
+
+        .table thead th {
+            background: #f8f9fc;
+            color: #6c757d;
+            font-size: 12px;
+            padding: 16px;
+            white-space: nowrap;
+        }
+
+        .table tbody td {
+            padding: 17px 16px;
+            vertical-align: middle;
+        }
+
+        .student-name {
+            font-weight: 600;
+            color: #343a40;
+        }
+
+        .email-text {
+            color: #6c757d;
+        }
+
+        .course-badge {
+            background: #e8edff;
+            color: #4361ee;
+            padding: 7px 12px;
+            border-radius: 20px;
+        }
+
+        .fee-text {
+            font-weight: 600;
+            color: #198754;
+        }
+
+        .pagination-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding-top: 20px;
+        }
+
+        .pagination-buttons button {
+            border: 1px solid #dee2e6;
+            background: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            margin-left: 5px;
+        }
+
+        .pagination-buttons button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="d-flex" id="wrapper">
+
+    <!-- LEFT SIDEBAR -->
+    <div class="bg-dark text-white" id="sidebar-wrapper">
+
+        <div class="sidebar-heading border-bottom border-secondary p-3">
+            <i class="bi bi-mortarboard-fill me-2"></i>
+            SMS Admin
+        </div>
+
+        <div class="list-group list-group-flush">
+
+            <a th:href="@{/dashboard}" class="sidebar-link">
+                <i class="bi bi-speedometer2 me-2"></i>
+                Dashboard
+            </a>
+
+            <a th:href="@{/courses/list}" class="sidebar-link">
+                <i class="bi bi-book me-2"></i>
+                Courses
+            </a>
+
+            <a th:href="@{/students/list}" class="sidebar-link">
+                <i class="bi bi-people me-2"></i>
+                Students
+            </a>
+
+            <a th:href="@{/enrollment/students}" class="sidebar-link active">
+                <i class="bi bi-person-check me-2"></i>
+                Enrolled Students
+            </a>
+
+            <a th:href="@{/enrollment/new}" class="sidebar-link">
+                <i class="bi bi-person-plus me-2"></i>
+                Enroll to Course
+            </a>
+
+            <a th:href="@{/logout}"
+               class="sidebar-link mt-auto border-top border-secondary">
+                <i class="bi bi-box-arrow-right me-2"></i>
+                Logout
+            </a>
+
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="page-content-wrapper">
+
+        <!-- TOP NAVBAR -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+
+            <div class="container-fluid">
+
+                <button class="btn btn-outline-secondary" id="sidebarToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+
+                <div class="ms-auto">
+                    <span class="navbar-text">
+                        <i class="bi bi-person-circle me-1"></i>
+                        Admin User
+                    </span>
+                </div>
+
+            </div>
+        </nav>
+
+        <div class="container-fluid px-4 py-4">
+
+            <!-- PAGE HEADER -->
+            <div class="page-header mb-4">
+
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+
+                    <div>
+                        <h2 class="mb-2">Students Enrolled in Courses</h2>
+
+                        <p class="mb-3 opacity-75">
+                            Track enrollment coverage, fees, and quick access to details.
+                        </p>
+
+                        <span class="student-count">
+                            <i class="bi bi-people-fill me-1"></i>
+                            <span th:text="${#lists.size(students)}">0</span>
+                            Students
+                        </span>
+                    </div>
+
+                    <a th:href="@{/enrollment/new}"
+                       class="btn btn-light text-primary fw-semibold">
+
+                        <i class="bi bi-plus-lg me-1"></i>
+                        Enroll Student
+
+                    </a>
+
+                </div>
+            </div>
+
+            <!-- SUCCESS MESSAGE -->
+            <div th:if="${successMessage}"
+                 class="alert alert-success"
+                 th:text="${successMessage}">
+            </div>
+
+            <!-- ERROR MESSAGE -->
+            <div th:if="${errorMessage}"
+                 class="alert alert-danger"
+                 th:text="${errorMessage}">
+            </div>
+
+            <!-- STUDENTS TABLE -->
+            <div class="card main-card">
+
+                <div class="card-header bg-white border-0 p-4">
+
+                    <h5 class="mb-0">
+                        <i class="bi bi-people me-2"></i>
+                        Enrolled Students
+                    </h5>
+
+                </div>
+
+                <div class="card-body pt-0">
+
+                    <div th:if="${#lists.isEmpty(students)}"
+                         class="alert alert-info">
+                        No students have enrolled in any courses yet.
+                    </div>
+
+                    <div class="table-responsive">
+
+                        <table class="table table-hover align-middle"
+                               id="studentsTable">
+
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>STUDENT NAME</th>
+                                    <th>EMAIL</th>
+                                    <th>COURSES COUNT</th>
+                                    <th>TOTAL FEE</th>
+                                    <th>ACTIONS</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                <tr th:each="student, status : ${students}">
+
+                                    <td th:text="${status.count}">1</td>
+
+                                    <td>
+                                        <span class="student-name"
+                                              th:text="${student.firstName + ' ' + student.lastName}">
+                                            Rahul Singh
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span class="email-text"
+                                              th:text="${student.email}">
+                                            rahul@yahoo.com
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span class="course-badge"
+                                              th:text="${#lists.size(student.courses)}">
+                                            2
+                                        </span>
+                                    </td>
+
+                                    <td class="fee-text"
+                                        th:text="${'₹' + #numbers.formatDecimal(#aggregates.sum(student.courses.![fee]), 1, 'COMMA', 2, 'POINT')}">
+                                        ₹7000.00
+                                    </td>
+
+                                    <td>
+                                        <a th:href="@{/enrollment/details/{id}(id=${student.id})}"
+                                           class="btn btn-sm btn-info text-white"
+                                           title="View Details">
+
+                                            <i class="bi bi-eye"></i>
+
+                                        </a>
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+                        </table>
+
+                    </div>
+
+                    <!-- PAGINATION -->
+                    <div class="pagination-area">
+
+                        <div class="text-muted small" id="paginationInfo">
+                            Showing 0 students
+                        </div>
+
+                        <div class="pagination-buttons">
+
+                            <button type="button" id="previousBtn">
+                                Previous
+                            </button>
+
+                            <button type="button" id="nextBtn">
+                                Next
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    // SIDEBAR TOGGLE
+    const sidebarToggle = document.getElementById("sidebarToggle");
+
+    if (sidebarToggle) {
+
+        sidebarToggle.addEventListener("click", function () {
+
+            document.body.classList.toggle("sb-sidenav-toggled");
+
+        });
+
+    }
+
+    // PAGINATION
+    const table = document.getElementById("studentsTable");
+
+    const rows = Array.from(
+        table.querySelectorAll("tbody tr")
+    );
+
+    const previousBtn = document.getElementById("previousBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const paginationInfo = document.getElementById("paginationInfo");
+
+    const rowsPerPage = 5;
+
+    let currentPage = 1;
+
+    const totalPages = Math.ceil(rows.length / rowsPerPage);
+
+    function showPage(page) {
+
+        currentPage = page;
+
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+
+        rows.forEach(function (row, index) {
+
+            row.style.display =
+                (index >= start && index < end) ? "" : "none";
+
+        });
+
+        previousBtn.disabled = currentPage === 1;
+
+        nextBtn.disabled =
+            currentPage === totalPages || totalPages === 0;
+
+        if (rows.length === 0) {
+
+            paginationInfo.textContent = "Showing 0 students";
+
+        } else {
+
+            paginationInfo.textContent =
+                "Showing " + (start + 1) +
+                " to " + Math.min(end, rows.length) +
+                " of " + rows.length + " students";
+
+        }
+
+    }
+
+    previousBtn.addEventListener("click", function () {
+
+        if (currentPage > 1) {
+            showPage(currentPage - 1);
+        }
+
+    });
+
+    nextBtn.addEventListener("click", function () {
+
+        if (currentPage < totalPages) {
+            showPage(currentPage + 1);
+        }
+
+    });
+
+    showPage(1);
+
+});
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,159 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head}"></head>
+
+<body>
+
+<div class="d-flex" id="wrapper">
+
+    <!-- Sidebar -->
+    <div th:replace="~{fragments/layout :: sidebar}"></div>
+
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
+
+        <!-- Navbar -->
+        <div th:replace="~{fragments/layout :: navbar}"></div>
+
+        <div class="container-fluid px-4 py-4">
+
+            <!-- Page Heading -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+
+                <h2>View Student</h2>
+
+                <a th:href="@{/students/list}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>
+                    Back to List
+                </a>
+
+            </div>
+
+            <!-- Student Details Card -->
+            <div class="card mb-4">
+
+                <div class="card-header bg-white">
+                    <i class="bi bi-person me-1"></i>
+                    Student Details
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row mb-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Student ID</label>
+                            <p class="form-control"
+                               th:text="${studentDTO.id}"></p>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">First Name</label>
+                            <p class="form-control"
+                               th:text="${studentDTO.firstName}"></p>
+                        </div>
+
+                    </div>
+
+                    <div class="row mb-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Last Name</label>
+                            <p class="form-control"
+                               th:text="${studentDTO.lastName}"></p>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Email</label>
+                            <p class="form-control"
+                               th:text="${studentDTO.email}"></p>
+                        </div>
+
+                    </div>
+
+                    <div class="row mb-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Phone Number</label>
+                            <p class="form-control"
+                               th:text="${studentDTO.phoneNumber}"></p>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Total Courses</label>
+                            <p class="form-control"
+                               th:text="${studentDTO.courseIds != null ? #lists.size(studentDTO.courseIds) : 0}">
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <!-- Enrolled Courses -->
+                    <div class="mb-4">
+
+                        <label class="form-label fw-bold">
+                            Enrolled Courses
+                        </label>
+
+                        <div th:if="${studentDTO.courseDetails == null or #lists.isEmpty(studentDTO.courseDetails)}"
+                             class="alert alert-info">
+                            No courses enrolled yet.
+                        </div>
+
+                        <div th:if="${studentDTO.courseDetails != null and !#lists.isEmpty(studentDTO.courseDetails)}"
+                             class="list-group">
+
+                            <div class="list-group-item d-flex align-items-center"
+                                 th:each="course, status : ${studentDTO.courseDetails}">
+
+                                <span class="badge bg-primary me-3"
+                                      th:text="${status.count}">
+                                </span>
+
+                                <span th:text="${course}"></span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Address -->
+                    <div class="mb-3">
+
+                        <label class="form-label fw-bold">Address</label>
+
+                        <p class="form-control"
+                           style="min-height: 100px; white-space: pre-wrap;"
+                           th:text="${studentDTO.address}">
+                        </p>
+
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="d-flex justify-content-end">
+
+                        <a th:href="@{/students/edit/{id}(id=${studentDTO.id})}"
+                           class="btn btn-warning text-white">
+
+                            <i class="bi bi-pencil me-1"></i>
+                            Edit Student
+
+                        </a>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>
